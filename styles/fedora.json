@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Fedora",
+  "author": "Orion Unchained",
+  "description": "Fedora blues with a white radiator.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "51a2da"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "3c6eb4"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "51a2da"
+    }
+  }
+}

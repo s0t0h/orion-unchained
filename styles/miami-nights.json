@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Miami Nights",
+  "author": "Orion Unchained",
+  "description": "Pink and cyan, alternating.",
+  "tags": [
+    "retro",
+    "neon"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff1493"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "00ffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ff1493"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "00ffff"
+    }
+  }
+}

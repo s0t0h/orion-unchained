@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Kernel Panic",
+  "author": "Orion Unchained",
+  "description": "Everything beats red. For the brave.",
+  "tags": [
+    "linux",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "heartbeat",
+      "color": "ff0000",
+      "speed": 7,
+      "duration": 2
+    }
+  }
+}

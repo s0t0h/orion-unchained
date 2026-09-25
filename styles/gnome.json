@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "GNOME",
+  "author": "Orion Unchained",
+  "description": "Adwaita blue and white.",
+  "tags": [
+    "linux",
+    "desktop"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "3584e4"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "3584e4"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "3584e4"
+    }
+  }
+}

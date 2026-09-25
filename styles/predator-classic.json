@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Predator Classic",
+  "author": "Orion Unchained",
+  "description": "Acer's factory look: every zone in Predator cyan (#00AEC7).",
+  "tags": [
+    "acer"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "00aec7",
+      "speed": 3,
+      "duration": 3,
+      "direction": "right"
+    }
+  }
+}

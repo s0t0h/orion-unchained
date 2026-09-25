@@ -1,0 +1,35 @@
+name: Model report
+description: Tell us whether Orion Unchained works on your Acer desktop
+labels: [hardware]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: For example "Predator PO5-650". It is printed by the report below.
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Everything works
+        - Some zones work
+        - Driver loads but nothing lights up
+        - Driver does not load
+    validations:
+      required: true
+  - type: textarea
+    id: zones
+    attributes:
+      label: Zones
+      description: Which physical part lights up for each zone? Try "orionctl set area1 -m static -c red" and so on.
+  - type: textarea
+    id: report
+    attributes:
+      label: Hardware report
+      description: Output of "sudo sh scripts/collect-info.sh". It contains no serial numbers.
+      render: markdown
+    validations:
+      required: true

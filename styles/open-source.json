@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Open Source",
+  "author": "Orion Unchained",
+  "description": "Open Source Initiative green, breathing.",
+  "tags": [
+    "linux",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "breathing",
+      "color": "3da639",
+      "speed": 3,
+      "duration": 3
+    }
+  }
+}

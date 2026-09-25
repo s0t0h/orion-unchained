@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "name": "Risen",
+  "author": "Orion Unchained",
+  "description": "Acer's risen effect on all zones.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "risen",
+      "speed": 4,
+      "duration": 3
+    }
+  }
+}

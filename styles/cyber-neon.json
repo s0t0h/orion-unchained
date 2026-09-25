@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Cyber Neon",
+  "author": "Orion Unchained",
+  "description": "Acid yellow and electric cyan with a red rear.",
+  "tags": [
+    "neon"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "fcee0a"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "00f0ff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "fcee0a"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ff003c"
+    }
+  }
+}

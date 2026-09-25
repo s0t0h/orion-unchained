@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Predator Palette",
+  "author": "Orion Unchained",
+  "description": "The five swatches from PredatorSense's colour picker, one per zone.",
+  "tags": [
+    "acer"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "00aec7"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "a000ff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ffa000"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "3cf03c"
+    }
+  }
+}

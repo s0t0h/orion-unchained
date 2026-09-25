@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Magic",
+  "author": "Orion Unchained",
+  "description": "Acer's magic effect on all zones.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "magic",
+      "speed": 5
+    }
+  }
+}

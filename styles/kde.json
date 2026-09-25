@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "name": "KDE",
+  "author": "Orion Unchained",
+  "description": "Plasma blue with a breathing CPU block.",
+  "tags": [
+    "linux",
+    "desktop"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "1d99f3"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "1d99f3"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "1d99f3"
+    },
+    "cpu": {
+      "mode": "breathing",
+      "color": "1d99f3",
+      "speed": 3,
+      "duration": 3
+    }
+  }
+}

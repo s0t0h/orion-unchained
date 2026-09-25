@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Trans Pride",
+  "author": "Orion Unchained",
+  "description": "Blue, pink and white from the transgender flag.",
+  "tags": [
+    "pride"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "5bcefa"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "f5a9b8"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "5bcefa"
+    }
+  }
+}

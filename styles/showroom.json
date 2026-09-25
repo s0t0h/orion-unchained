@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Showroom",
+  "author": "Orion Unchained",
+  "description": "Fast rainbow at full brightness, for showing off.",
+  "tags": [
+    "utility",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "rainbow",
+      "speed": 8
+    }
+  }
+}

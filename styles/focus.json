@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Focus",
+  "author": "Orion Unchained",
+  "description": "Calm neutral white at 30 percent.",
+  "tags": [
+    "utility"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "ffffff",
+      "brightness": 30
+    }
+  }
+}

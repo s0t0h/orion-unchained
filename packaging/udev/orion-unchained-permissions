@@ -1,0 +1,12 @@
+#!/bin/sh
+# Hand the lighting controls of one acer-predator-dt-rgb device to the
+# orion-rgb group. Only the per-zone files listed below are touched.
+dev="$1"
+[ -r "$dev/zones" ] || exit 0
+getent group orion-rgb >/dev/null || exit 0
+tr ' ' '\n' < "$dev/zones" | while read -r zone; do
+	for attr in mode color brightness speed duration direction effect; do
+		[ -e "$dev/$zone/$attr" ] && chgrp orion-rgb "$dev/$zone/$attr"
+	done
+done
+exit 0

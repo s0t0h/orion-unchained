@@ -1,0 +1,15 @@
+{
+  "format": 1,
+  "name": "Clean White",
+  "author": "Orion Unchained",
+  "description": "Plain white everywhere.",
+  "tags": [
+    "utility"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "ffffff"
+    }
+  }
+}

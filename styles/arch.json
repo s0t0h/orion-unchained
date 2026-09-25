@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Arch",
+  "author": "Orion Unchained",
+  "description": "Arch Linux blue, all over. I use Arch, by the way.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "1793d1"
+    }
+  }
+}

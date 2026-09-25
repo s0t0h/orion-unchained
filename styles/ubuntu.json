@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Ubuntu",
+  "author": "Orion Unchained",
+  "description": "Ubuntu orange with aubergine accents.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "e95420"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "77216f"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "e95420"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "77216f"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Meteor Shower",
+  "author": "Orion Unchained",
+  "description": "Acer's meteorite effect on all zones.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "meteorite",
+      "speed": 5
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Bi Pride",
+  "author": "Orion Unchained",
+  "description": "Magenta, lavender and royal blue.",
+  "tags": [
+    "pride"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "d60270"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "9b4f96"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "0038a8"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "d60270"
+    }
+  }
+}

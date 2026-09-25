@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Sunset",
+  "author": "Orion Unchained",
+  "description": "Coral, rose, gold and a violet sky.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff5e3a"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ff2a68"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ffb347"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "8a2be2"
+    }
+  }
+}

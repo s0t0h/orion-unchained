@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Night Owl",
+  "author": "Orion Unchained",
+  "description": "Dim warm amber for late sessions.",
+  "tags": [
+    "utility"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "ff7a00",
+      "brightness": 15
+    }
+  }
+}

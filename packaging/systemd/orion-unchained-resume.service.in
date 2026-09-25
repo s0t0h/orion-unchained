@@ -1,0 +1,10 @@
+[Unit]
+Description=Orion Unchained: re-apply the case lighting after resume
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=@BINDIR@/orionctl --quiet reapply
+
+[Install]
+WantedBy=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target

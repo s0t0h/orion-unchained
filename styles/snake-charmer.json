@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Snake Charmer",
+  "author": "Orion Unchained",
+  "description": "A green snake chasing around the case.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "snake",
+      "color": "00ff88",
+      "speed": 6,
+      "direction": "right"
+    }
+  }
+}

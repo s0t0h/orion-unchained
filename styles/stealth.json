@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "name": "Stealth",
+  "author": "Orion Unchained",
+  "description": "Dark case, one faint red glow on the CPU block.",
+  "tags": [
+    "utility"
+  ],
+  "zones": {
+    "front": {
+      "mode": "off"
+    },
+    "radiator": {
+      "mode": "off"
+    },
+    "rear": {
+      "mode": "off"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ff0000",
+      "brightness": 10
+    }
+  }
+}

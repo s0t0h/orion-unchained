@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Extend",
+  "author": "Orion Unchained",
+  "description": "Acer's extend effect on all zones.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "extend",
+      "speed": 5
+    }
+  }
+}

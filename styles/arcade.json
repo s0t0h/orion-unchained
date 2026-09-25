@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Arcade",
+  "author": "Orion Unchained",
+  "description": "Primary colours, one per zone.",
+  "tags": [
+    "retro"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff0000"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "00ff00"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "0000ff"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ffff00"
+    }
+  }
+}

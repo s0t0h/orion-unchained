@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Halloween",
+  "author": "Orion Unchained",
+  "description": "Pumpkin orange with a breathing purple radiator.",
+  "tags": [
+    "seasonal"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff6600"
+    },
+    "radiator": {
+      "mode": "breathing",
+      "color": "8000ff",
+      "speed": 3,
+      "duration": 3
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ff6600"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "8000ff"
+    }
+  }
+}

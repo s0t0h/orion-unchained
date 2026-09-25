@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Vaporwave",
+  "author": "Orion Unchained",
+  "description": "Pastel pink, sky blue, lilac and mint.",
+  "tags": [
+    "retro",
+    "neon"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff71ce"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "01cdfe"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "b967ff"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "05ffa1"
+    }
+  }
+}

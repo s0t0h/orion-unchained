@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Lava",
+  "author": "Orion Unchained",
+  "description": "Glowing orange with a slow red heartbeat in the radiator.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff3000"
+    },
+    "radiator": {
+      "mode": "heartbeat",
+      "color": "ff0000",
+      "speed": 3,
+      "duration": 3
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ff8000"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ff3000"
+    }
+  }
+}

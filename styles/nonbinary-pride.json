@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Nonbinary Pride",
+  "author": "Orion Unchained",
+  "description": "Yellow, white and purple.",
+  "tags": [
+    "pride"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "fcf434"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "9c59d1"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "9c59d1"
+    }
+  }
+}

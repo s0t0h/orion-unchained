@@ -1,0 +1,3 @@
+# Orion Unchained: let members of the orion-rgb group change the case lighting.
+# "add" covers devices that were already bound when udev started.
+ACTION=="add|bind", SUBSYSTEM=="wmi", DRIVER=="acer-predator-dt-rgb", RUN+="@LIBEXECDIR@/udev-permissions /sys%p"

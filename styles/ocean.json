@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Ocean",
+  "author": "Orion Unchained",
+  "description": "Deep blues with a breathing surface.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "0077be"
+    },
+    "radiator": {
+      "mode": "breathing",
+      "color": "00d2ff",
+      "speed": 2,
+      "duration": 3
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "0047ab"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "00a3cc"
+    }
+  }
+}

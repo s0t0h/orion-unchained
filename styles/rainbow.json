@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Rainbow",
+  "author": "Orion Unchained",
+  "description": "The full spectrum cycling through every zone.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "rainbow",
+      "speed": 5
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Christmas",
+  "author": "Orion Unchained",
+  "description": "Red and green with a twinkling white radiator.",
+  "tags": [
+    "seasonal"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff0000"
+    },
+    "radiator": {
+      "mode": "twinkling",
+      "color": "ffffff",
+      "speed": 4,
+      "duration": 3
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "00ff00"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ff0000"
+    }
+  }
+}

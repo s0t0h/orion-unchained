@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "name": "All Off",
+  "author": "Orion Unchained",
+  "description": "Every light off.",
+  "tags": [
+    "utility"
+  ],
+  "zones": {
+    "global": {
+      "mode": "off"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "name": "Stack Attack",
+  "author": "Orion Unchained",
+  "description": "Acer's stack effect, building up from the left.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "stack",
+      "speed": 5,
+      "direction": "left"
+    }
+  }
+}

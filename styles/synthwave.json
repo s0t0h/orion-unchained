@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Synthwave",
+  "author": "Orion Unchained",
+  "description": "Hot pink and neon cyan, straight out of 1986.",
+  "tags": [
+    "retro",
+    "neon"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ff2a6d"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "d300c5"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "05d9e8"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "05d9e8"
+    }
+  }
+}

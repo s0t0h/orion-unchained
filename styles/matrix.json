@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Matrix",
+  "author": "Orion Unchained",
+  "description": "Green code rain twinkling across the case.",
+  "tags": [
+    "neon",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "twinkling",
+      "color": "00ff41",
+      "speed": 6,
+      "duration": 2
+    }
+  }
+}

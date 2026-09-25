@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Fireflies",
+  "author": "Orion Unchained",
+  "description": "Warm yellow sparks twinkling in the dark.",
+  "tags": [
+    "nature",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "twinkling",
+      "color": "ffc830",
+      "speed": 4,
+      "duration": 3
+    }
+  }
+}

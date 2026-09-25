@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "openSUSE",
+  "author": "Orion Unchained",
+  "description": "Geeko green and teal.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "73ba25"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "35b9ab"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "73ba25"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "35b9ab"
+    }
+  }
+}

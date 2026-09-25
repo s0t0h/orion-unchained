@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Linux Mint",
+  "author": "Orion Unchained",
+  "description": "Fresh mint green.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "global": {
+      "mode": "static",
+      "color": "86be43"
+    }
+  }
+}

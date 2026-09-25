@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Tux",
+  "author": "Orion Unchained",
+  "description": "Penguin colours: white belly, orange beak and feet.",
+  "tags": [
+    "linux"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "ffa000"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ffa000"
+    }
+  }
+}

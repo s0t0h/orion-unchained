@@ -1,0 +1,23 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected and what you got.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: orionctl doctor
+      description: Output of "orionctl doctor".
+      render: text
+  - type: textarea
+    id: report
+    attributes:
+      label: Hardware report
+      description: Output of "sudo sh scripts/collect-info.sh".
+      render: markdown

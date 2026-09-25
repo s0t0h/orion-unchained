@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Forest",
+  "author": "Orion Unchained",
+  "description": "Greens from moss to spring leaves.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "228b22"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "7cfc00"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "2e8b57"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "00ff7f"
+    }
+  }
+}

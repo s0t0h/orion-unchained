@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "name": "Pride",
+  "author": "Orion Unchained",
+  "description": "The whole rainbow, slowly.",
+  "tags": [
+    "pride",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "rainbow",
+      "speed": 3
+    }
+  }
+}

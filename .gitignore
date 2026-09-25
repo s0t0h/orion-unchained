@@ -1,0 +1,21 @@
+# Research material that must never be published: Acer's installers and
+# binaries, decompiled output, ACPI dumps of the author's machine, the manual.
+/private/
+
+# Kernel module build output
+*.o
+*.ko
+*.ko.zst
+*.mod
+*.mod.c
+*.cmd
+.*.cmd
+.*.d
+Module.symvers
+modules.order
+.module-common.o
+.tmp_versions/
+
+# Python
+__pycache__/
+*.pyc

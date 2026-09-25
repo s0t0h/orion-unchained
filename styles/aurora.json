@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "name": "Aurora",
+  "author": "Orion Unchained",
+  "description": "Northern lights: green and violet with a slow pulse on the radiator.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "00ff9c"
+    },
+    "radiator": {
+      "mode": "breathing",
+      "color": "7f00ff",
+      "speed": 2,
+      "duration": 3
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "00c8ff"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "00ff9c"
+    }
+  }
+}

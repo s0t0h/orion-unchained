@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "name": "Predator Pulse",
+  "author": "Orion Unchained",
+  "description": "Acer's cyan, breathing slowly across the whole case.",
+  "tags": [
+    "acer"
+  ],
+  "zones": {
+    "global": {
+      "mode": "breathing",
+      "color": "00aec7",
+      "speed": 3,
+      "duration": 3
+    }
+  }
+}

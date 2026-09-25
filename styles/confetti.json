@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Confetti",
+  "author": "Orion Unchained",
+  "description": "Twinkling in random colours everywhere.",
+  "tags": [
+    "effects",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "twinkling",
+      "color": "random",
+      "speed": 6,
+      "duration": 3
+    }
+  }
+}

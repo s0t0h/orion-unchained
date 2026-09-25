@@ -1,0 +1,17 @@
+name: Share a style
+description: Submit a lighting style for the built-in library
+labels: [style]
+body:
+  - type: textarea
+    id: json
+    attributes:
+      label: Style file
+      description: Paste the JSON. "orionctl style save NAME" writes one to ~/.config/orion-unchained/styles.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: about
+    attributes:
+      label: About it
+      description: What inspired it, and a photo or video link if you have one.

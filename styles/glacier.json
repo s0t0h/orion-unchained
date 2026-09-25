@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "name": "Glacier",
+  "author": "Orion Unchained",
+  "description": "Ice blue and white.",
+  "tags": [
+    "nature"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "a0f0ff"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "60d0ff"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "a0f0ff"
+    }
+  }
+}

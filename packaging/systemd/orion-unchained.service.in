@@ -1,0 +1,10 @@
+[Unit]
+Description=Orion Unchained: restore the saved case lighting
+After=systemd-modules-load.service systemd-tmpfiles-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=@BINDIR@/orionctl --quiet restore --wait 30
+
+[Install]
+WantedBy=multi-user.target

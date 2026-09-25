@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "name": "Debian",
+  "author": "Orion Unchained",
+  "description": "Debian swirl red and white.",
+  "tags": [
+    "linux",
+    "distro"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "d70751"
+    },
+    "radiator": {
+      "mode": "static",
+      "color": "ffffff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "d70751"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "ffffff"
+    }
+  }
+}

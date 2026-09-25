@@ -1,0 +1,710 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""orionctl: lighting control for Acer Predator Orion desktops (Orion Unchained).
+
+Talks to the acer_predator_dt_rgb kernel driver through sysfs. Styles are
+plain JSON files, see docs/STYLES.md.
+
+Examples:
+  orionctl status
+  orionctl set front rear -m breathing -c purple -s 3
+  orionctl set global -m rainbow -b 60
+  orionctl style list
+  orionctl style apply synthwave
+  orionctl off
+"""
+import argparse
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+
+VERSION = "0.1.0"
+
+SYSFS_DRIVER = "/sys/bus/wmi/drivers/acer-predator-dt-rgb"
+STATE_DIR = "/var/lib/orion-unchained"
+STATE_FILE = os.path.join(STATE_DIR, "state.json")
+LAST_ON_FILE = os.path.join(STATE_DIR, "last-on.json")
+# Kept across the sudo fallback so personal styles are still found.
+USER_STYLE_DIR = os.environ.get("ORIONCTL_USER_STYLE_DIR",
+                                os.path.expanduser("~/.config/orion-unchained/styles"))
+SYSTEM_STYLE_DIRS = [
+    "/usr/local/share/orion-unchained/styles",
+    "/usr/share/orion-unchained/styles",
+    # running from a git checkout
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "styles"),
+]
+STYLE_FORMAT = 1
+GROUP = "orion-rgb"
+
+# What each firmware effect uses, from PredatorSense's UI rules. "random" is
+# only offered on the global zone.
+MODES = {
+    "static":    {"color": True,  "speed": False, "duration": False, "direction": False, "random": False},
+    "breathing": {"color": True,  "speed": True,  "duration": True,  "direction": False, "random": True},
+    "heartbeat": {"color": True,  "speed": True,  "duration": True,  "direction": False, "random": True},
+    "twinkling": {"color": True,  "speed": True,  "duration": True,  "direction": False, "random": True},
+    "rainbow":   {"color": False, "speed": True,  "duration": False, "direction": False, "random": False},
+    "wave":      {"color": True,  "speed": True,  "duration": True,  "direction": False, "random": True},
+    "risen":     {"color": False, "speed": True,  "duration": True,  "direction": False, "random": False},
+    "stack":     {"color": False, "speed": True,  "duration": False, "direction": True,  "random": False},
+    "extend":    {"color": False, "speed": True,  "duration": False, "direction": False, "random": False},
+    "meteorite": {"color": False, "speed": True,  "duration": False, "direction": False, "random": False},
+    "magic":     {"color": False, "speed": True,  "duration": False, "direction": False, "random": False},
+    "snake":     {"color": True,  "speed": True,  "duration": False, "direction": True,  "random": True},
+    "off":       {"color": False, "speed": False, "duration": False, "direction": False, "random": False},
+}
+GLOBAL_ONLY_IN_PREDATORSENSE = {"wave", "snake"}
+
+DEFAULTS = {"mode": "static", "color": "ffffff", "brightness": 100, "speed": 5,
+            "duration": 0, "direction": 0}
+LIMITS = {"brightness": 100, "speed": 9, "duration": 9, "direction": 1}
+
+# Zone names per model family, taken from PredatorSense's own layout tables
+# (alias -> driver zones). The first matching entry wins, so specific models
+# come first. A style may use any alias; zones a machine lacks are skipped.
+MODELS = [
+    ("PO7-660", {"cpu": ["area1"], "front": ["area2"], "radiator": ["area3"], "top": ["area3"],
+                 "rear": ["area4"], "memory": ["dimm"]}),
+    ("PO7", {"cpu": ["area1"], "front1": ["area2"], "front2": ["area3"], "front": ["area2", "area3"],
+             "rear": ["area4"], "motherboard": ["area5"], "memory": ["dimm"]}),
+    ("PO5", {"cpu": ["area1"], "front1": ["area2"], "front2": ["area3"], "front": ["area2", "area3"],
+             "rear": ["area4"], "motherboard": ["area5"], "memory": ["dimm"]}),
+    ("PO3", {"cpu": ["area1"], "front": ["area2"], "rear": ["area3"], "lightbar": ["area4"]}),
+    ("POX", {"cpu": ["area1"], "sysfan1": ["area2"], "sysfan2": ["area3"], "fans": ["area2", "area3"],
+             "bezel": ["area4"], "memory": ["dimm"]}),
+]
+
+COLORS = {
+    "red": "ff0000", "green": "00ff00", "blue": "0000ff", "white": "ffffff",
+    "yellow": "ffff00", "cyan": "00ffff", "magenta": "ff00ff", "orange": "ff6000",
+    "purple": "8000ff", "pink": "ff2080", "black": "000000",
+    "predator": "00aec7",
+}
+
+QUIET = False
+
+
+def say(msg):
+    if not QUIET:
+        print(msg)
+
+
+def die(msg, code=1):
+    print(f"orionctl: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def read(path):
+    with open(path) as f:
+        return f.read().strip()
+
+
+# --- device -----------------------------------------------------------------
+
+def device_dir(wait=0.0):
+    deadline = time.monotonic() + wait
+    while True:
+        found = glob.glob(os.path.join(SYSFS_DRIVER, "*", "zones"))
+        if found:
+            return os.path.dirname(found[0])
+        if time.monotonic() >= deadline:
+            return None
+        time.sleep(0.5)
+
+
+def require_device(wait=0.0):
+    dev = device_dir(wait)
+    if not dev:
+        die("the acer_predator_dt_rgb driver is not loaded (try: sudo modprobe acer_predator_dt_rgb, "
+            "or run 'orionctl doctor')")
+    return dev
+
+
+def product_name():
+    try:
+        return read("/sys/class/dmi/id/product_name")
+    except OSError:
+        return ""
+
+
+def zone_aliases():
+    name = product_name()
+    for key, table in MODELS:
+        if key in name:
+            return table
+    return {}
+
+
+def zones(dev):
+    return read(os.path.join(dev, "zones")).split()
+
+
+def names_for(zone, aliases):
+    """Aliases that point at exactly this one zone."""
+    return [a for a, targets in aliases.items() if targets == [zone]]
+
+
+def zone_label(zone, aliases):
+    names = names_for(zone, aliases)
+    return f"{zone} ({'/'.join(names)})" if names else zone
+
+
+def read_zone(dev, zone):
+    d = os.path.join(dev, zone)
+    m = re.search(r"\[(\w+)\]", read(os.path.join(d, "mode")))
+    state = {"mode": m.group(1) if m else "static", "color": read(os.path.join(d, "color"))}
+    for key in ("brightness", "speed", "duration", "direction"):
+        state[key] = int(read(os.path.join(d, key)))
+    return state
+
+
+def read_all(dev):
+    return {z: read_zone(dev, z) for z in zones(dev)}
+
+
+def resolve_zone(dev, name, aliases, strict=True):
+    """Map a user-facing zone name to driver zones. Non-strict lookups skip missing zones."""
+    available = zones(dev)
+    name = name.lower()
+    if name == "all":
+        return [z for z in available if z not in ("global", "dimm")]
+    if name in available:
+        return [name]
+    present = [z for z in aliases.get(name, []) if z in available]
+    if present:
+        return present
+    if not strict:
+        say(f"  (skipping {name!r}: this machine has no such zone)")
+        return []
+    known = sorted(set(available) | {a for a, t in aliases.items() if any(z in available for z in t)} | {"all"})
+    die(f"unknown zone {name!r}; this machine has: {' '.join(known)}")
+
+
+def can_write(dev, zone_list):
+    return all(os.access(os.path.join(dev, z, "effect"), os.W_OK) for z in zone_list)
+
+
+def ensure_writable(dev, zone_list):
+    if can_write(dev, zone_list):
+        return
+    if os.geteuid() == 0:
+        die("cannot write to the driver's sysfs files even as root")
+    say(f"note: no write access yet (join the '{GROUP}' group and log in again); using sudo")
+    os.execvp("sudo", ["sudo", "env", f"ORIONCTL_USER_STYLE_DIR={USER_STYLE_DIR}",
+                       sys.executable, os.path.realpath(__file__), *sys.argv[1:]])
+
+
+def normalize(zone_state):
+    """Fill in defaults so two states compare equal when they look the same."""
+    s = dict(DEFAULTS)
+    s.update({k: v for k, v in zone_state.items() if v is not None})
+    return s
+
+
+def write_zone(dev, zone, state):
+    s = normalize(state)
+    fields = [f"mode={s['mode']}", f"color={s['color']}", f"brightness={s['brightness']}",
+              f"speed={s['speed']}", f"duration={s['duration']}", f"direction={s['direction']}"]
+    effect = " ".join(fields)
+    try:
+        with open(os.path.join(dev, zone, "effect"), "w") as f:
+            f.write(effect)
+    except OSError as e:
+        die(f"{zone}: the driver rejected '{effect}' ({e.strerror})")
+    return effect
+
+
+# --- validation -------------------------------------------------------------
+
+def parse_color(value):
+    value = str(value).strip().lower().lstrip("#")
+    value = COLORS.get(value, value)
+    if value == "random" or re.fullmatch(r"[0-9a-f]{6}", value):
+        return value
+    raise ValueError(f"{value!r} is not RRGGBB, a colour name or 'random'")
+
+
+def color_arg(value):
+    """argparse type: turn parse_color's error into a readable usage message."""
+    try:
+        return parse_color(value)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e))
+
+
+def check_zone_state(zone_key, state):
+    errors = []
+    if not isinstance(state, dict):
+        return [f"{zone_key}: expected an object"]
+    unknown = set(state) - set(DEFAULTS)
+    if unknown:
+        errors.append(f"{zone_key}: unknown field(s) {', '.join(sorted(unknown))}")
+    mode = state.get("mode", DEFAULTS["mode"])
+    if mode not in MODES:
+        errors.append(f"{zone_key}: unknown mode {mode!r}")
+    if "color" in state:
+        try:
+            color = parse_color(state["color"])
+            if color == "random" and (zone_key != "global" or not MODES.get(mode, {}).get("random")):
+                errors.append(f"{zone_key}: 'random' colour only works on the global zone "
+                              f"with breathing, heartbeat, twinkling, wave or snake")
+        except ValueError as e:
+            errors.append(f"{zone_key}: {e}")
+    for key, limit in LIMITS.items():
+        if key in state:
+            v = state[key]
+            if key == "direction" and v in ("left", "right"):
+                continue
+            if not isinstance(v, int) or isinstance(v, bool) or not 0 <= v <= limit:
+                errors.append(f"{zone_key}: {key} must be an integer 0-{limit}")
+    return errors
+
+
+def validate_style(doc):
+    errors = []
+    if not isinstance(doc, dict):
+        return ["style must be a JSON object"]
+    if doc.get("format") != STYLE_FORMAT:
+        errors.append(f"'format' must be {STYLE_FORMAT}")
+    if not isinstance(doc.get("name"), str) or not doc["name"].strip():
+        errors.append("'name' is required")
+    for key in ("description", "author"):
+        if key in doc and not isinstance(doc[key], str):
+            errors.append(f"'{key}' must be a string")
+    if "tags" in doc and not (isinstance(doc["tags"], list) and all(isinstance(t, str) for t in doc["tags"])):
+        errors.append("'tags' must be a list of strings")
+    z = doc.get("zones")
+    if not isinstance(z, dict) or not z:
+        errors.append("'zones' must be a non-empty object")
+    else:
+        for zone_key, state in z.items():
+            errors += check_zone_state(zone_key, state)
+    return errors
+
+
+def prepare_state(state):
+    s = dict(state)
+    if "color" in s:
+        s["color"] = parse_color(s["color"])
+    if s.get("direction") in ("left", "right"):
+        s["direction"] = 0 if s["direction"] == "left" else 1
+    return s
+
+
+# --- applying ---------------------------------------------------------------
+
+def plan_style(dev, doc, aliases):
+    """Turn a style's zone map into an ordered list of (zone, state) writes."""
+    z = doc["zones"]
+    order = sorted(z, key=lambda k: 0 if k == "global" else 1 if k == "all" else 2)
+    plan = []
+    for key in order:
+        state = prepare_state(z[key])
+        for zone in resolve_zone(dev, key, aliases, strict=False):
+            plan.append((zone, state))
+    if not plan:
+        die("this style has no zone that exists on this machine")
+    return plan
+
+
+def apply_plan(dev, plan):
+    ensure_writable(dev, [zone for zone, _ in plan])
+    for zone, state in plan:
+        effect = write_zone(dev, zone, state)
+        say(f"  {zone:7s} {effect}")
+
+
+def snapshot(dev):
+    """Current look as a style document; one global entry when all areas match."""
+    states = {z: normalize(s) for z, s in read_all(dev).items() if z != "global"}
+    areas = [z for z in states if z != "dimm"]
+    if areas and all(states[a] == states[areas[0]] for a in areas):
+        zones_doc = {"global": states[areas[0]]}
+    else:
+        zones_doc = {z: states[z] for z in areas}
+    if "dimm" in states:
+        zones_doc["dimm"] = states["dimm"]
+    return {"format": STYLE_FORMAT, "name": "Saved state", "zones": zones_doc}
+
+
+def save_state(dev, path, quiet_fail=False):
+    doc = snapshot(dev)
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".state-")
+        with os.fdopen(fd, "w") as f:
+            json.dump(doc, f, indent=2)
+            f.write("\n")
+        os.chmod(tmp, 0o664)
+        os.replace(tmp, path)
+        return True
+    except OSError as e:
+        if not quiet_fail:
+            die(f"cannot save state to {path}: {e.strerror}")
+        return False
+
+
+# --- styles -----------------------------------------------------------------
+
+def slug(name):
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+def style_dirs():
+    dirs = [USER_STYLE_DIR] + SYSTEM_STYLE_DIRS
+    seen, out = set(), []
+    for d in dirs:
+        real = os.path.realpath(d)
+        if real not in seen and os.path.isdir(real):
+            seen.add(real)
+            out.append(real)
+    return out
+
+
+def load_style_file(path):
+    try:
+        with open(path) as f:
+            doc = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        raise ValueError(f"{path}: {e}")
+    errors = validate_style(doc)
+    if errors:
+        raise ValueError(f"{path}: " + "; ".join(errors))
+    return doc
+
+
+def all_styles():
+    """slug -> (path, doc); user styles shadow system styles of the same name."""
+    found = {}
+    for d in style_dirs():
+        for path in sorted(glob.glob(os.path.join(d, "*.json"))):
+            key = os.path.splitext(os.path.basename(path))[0]
+            if key in found:
+                continue
+            try:
+                found[key] = (path, load_style_file(path))
+            except ValueError as e:
+                print(f"orionctl: skipping {e}", file=sys.stderr)
+    return found
+
+
+def find_style(name):
+    if os.path.sep in name or name.endswith(".json"):
+        try:
+            return name, load_style_file(name)
+        except ValueError as e:
+            die(str(e))
+    styles = all_styles()
+    key = slug(name)
+    if key in styles:
+        return styles[key]
+    for path, doc in styles.values():
+        if slug(doc["name"]) == key:
+            return path, doc
+    die(f"no style called {name!r}; see 'orionctl style list'")
+
+
+# --- commands ---------------------------------------------------------------
+
+def cmd_status(args):
+    dev = require_device()
+    aliases = zone_aliases()
+    states = read_all(dev)
+    if args.json:
+        print(json.dumps({"model": product_name(), "smbios_version": read(os.path.join(dev, "smbios_version")),
+                          "zones": {z: dict(s, aliases=names_for(z, aliases)) for z, s in states.items()}}, indent=2))
+        return
+    print(f"{product_name() or 'unknown model'}, SMBIOS 172 v{read(os.path.join(dev, 'smbios_version'))}")
+    for zone, s in states.items():
+        extra = []
+        if MODES.get(s["mode"], {}).get("speed"):
+            extra.append(f"speed {s['speed']}")
+        if MODES.get(s["mode"], {}).get("duration"):
+            extra.append(f"duration {s['duration']}")
+        if MODES.get(s["mode"], {}).get("direction"):
+            extra.append("right" if s["direction"] else "left")
+        color = s["color"] if MODES.get(s["mode"], {}).get("color") else "-"
+        print(f"  {zone_label(zone, aliases):20s} {s['mode']:10s} {color:7s} "
+              f"{s['brightness']:3d}%  {', '.join(extra)}")
+
+
+def cmd_zones(args):
+    dev = require_device()
+    aliases = zone_aliases()
+    for zone in zones(dev):
+        names = ", ".join(names_for(zone, aliases)) or ("every area at once" if zone == "global" else "")
+        print(f"  {zone:7s} {names}")
+    groups = {a: t for a, t in aliases.items() if len(t) > 1}
+    for alias, targets in groups.items():
+        print(f"  {alias:7s} {' + '.join(targets)}")
+    print("  all     every area except global and memory")
+
+
+def cmd_modes(args):
+    print(f"  {'mode':10s} colour  speed  duration  direction")
+    for name, m in MODES.items():
+        note = "  (PredatorSense offers this on global only)" if name in GLOBAL_ONLY_IN_PREDATORSENSE else ""
+        print(f"  {name:10s} {'yes' if m['color'] else '-':7s} {'yes' if m['speed'] else '-':6s} "
+              f"{'yes' if m['duration'] else '-':9s} {'yes' if m['direction'] else '-'}{note}")
+
+
+def cmd_set(args):
+    dev = require_device()
+    aliases = zone_aliases()
+    targets = []
+    for name in args.zones or ["all"]:
+        targets += resolve_zone(dev, name, aliases)
+    state = {"mode": args.mode, "color": args.color, "brightness": args.brightness,
+             "speed": args.speed, "duration": args.duration, "direction": args.direction}
+    given = {k: v for k, v in state.items() if v is not None}
+    if not given:
+        die("nothing to set; pass at least one of -m/-c/-b/-s/-t/-d")
+    plan = []
+    for zone in dict.fromkeys(targets):
+        merged = dict(read_zone(dev, zone))
+        merged.update(prepare_state(given))
+        errors = check_zone_state(zone, merged)
+        if errors:
+            die("; ".join(errors))
+        plan.append((zone, merged))
+    apply_plan(dev, plan)
+    save_state(dev, STATE_FILE, quiet_fail=True)
+
+
+def cmd_off(args):
+    dev = require_device()
+    aliases = zone_aliases()
+    targets = []
+    for name in args.zones or ["all"]:
+        targets += resolve_zone(dev, name, aliases)
+    plan = [(z, dict(read_zone(dev, z), mode="off")) for z in dict.fromkeys(targets)]
+    ensure_writable(dev, targets)
+    # Remember the lit look for 'orionctl on', then persist "off" for the next boot.
+    if any(s["mode"] != "off" for s in read_all(dev).values()):
+        save_state(dev, LAST_ON_FILE, quiet_fail=True)
+    apply_plan(dev, plan)
+    save_state(dev, STATE_FILE, quiet_fail=True)
+
+
+def cmd_on(args):
+    dev = require_device()
+    path = LAST_ON_FILE if os.path.exists(LAST_ON_FILE) else None
+    if not path:
+        die("no previous look saved yet; pick one with 'orionctl style apply NAME'")
+    try:
+        doc = load_style_file(path)
+    except ValueError as e:
+        die(str(e))
+    apply_plan(dev, plan_style(dev, doc, zone_aliases()))
+    save_state(dev, STATE_FILE, quiet_fail=True)
+
+
+def cmd_save(args):
+    dev = require_device()
+    save_state(dev, args.file)
+    say(f"saved to {args.file}")
+
+
+def cmd_restore(args):
+    dev = device_dir(args.wait)
+    if not dev:
+        die("driver not loaded, nothing to restore")
+    if not os.path.exists(args.file):
+        say(f"no saved state at {args.file}, leaving the lights as they are")
+        return
+    try:
+        doc = load_style_file(args.file)
+    except ValueError as e:
+        die(str(e))
+    say(f"restoring {args.file}")
+    apply_plan(dev, plan_style(dev, doc, zone_aliases()))
+
+
+def cmd_reapply(args):
+    dev = require_device()
+    doc = snapshot(dev)
+    say("re-applying the driver's current state")
+    apply_plan(dev, plan_style(dev, doc, zone_aliases()))
+
+
+def cmd_style_list(args):
+    styles = all_styles()
+    rows = []
+    for key, (path, doc) in sorted(styles.items(), key=lambda kv: kv[1][1]["name"].lower()):
+        tags = doc.get("tags", [])
+        if args.tag and args.tag.lower() not in [t.lower() for t in tags]:
+            continue
+        rows.append((key, doc, path))
+    if args.json:
+        print(json.dumps([dict(doc, id=key, path=path) for key, doc, path in rows], indent=2))
+        return
+    for key, doc, _ in rows:
+        print(f"  {key:24s} {doc.get('description', '')}")
+    say(f"\n{len(rows)} styles; apply one with: orionctl style apply NAME")
+
+
+def cmd_style_show(args):
+    path, doc = find_style(args.name)
+    print(f"# {path}")
+    print(json.dumps(doc, indent=2))
+
+
+def cmd_style_apply(args):
+    dev = require_device()
+    path, doc = find_style(args.name)
+    say(f"{doc['name']}: {doc.get('description', '')}".rstrip(": "))
+    apply_plan(dev, plan_style(dev, doc, zone_aliases()))
+    save_state(dev, STATE_FILE, quiet_fail=True)
+
+
+def cmd_style_save(args):
+    dev = require_device()
+    doc = snapshot(dev)
+    aliases = zone_aliases()
+    named = {}
+    for zone, state in doc["zones"].items():
+        names = names_for(zone, aliases)
+        named[names[0] if names else zone] = {k: v for k, v in state.items()
+                                              if k in ("mode", "color") or v != DEFAULTS[k]}
+    doc = {"format": STYLE_FORMAT, "name": args.name, "author": args.author or os.environ.get("USER", ""),
+           "description": args.description or "", "tags": [t for t in (args.tags or "").split(",") if t],
+           "zones": named}
+    os.makedirs(USER_STYLE_DIR, exist_ok=True)
+    path = os.path.join(USER_STYLE_DIR, slug(args.name) + ".json")
+    with open(path, "w") as f:
+        json.dump(doc, f, indent=2)
+        f.write("\n")
+    say(f"saved {path}")
+
+
+def cmd_style_validate(args):
+    bad = 0
+    for path in args.files:
+        try:
+            load_style_file(path)
+            say(f"ok    {path}")
+        except ValueError as e:
+            print(f"FAIL  {e}")
+            bad += 1
+    sys.exit(1 if bad else 0)
+
+
+def cmd_doctor(args):
+    ok = True
+
+    def check(cond, good, bad, hint=""):
+        nonlocal ok
+        print(f"  [{'ok' if cond else '!!'}] {good if cond else bad}")
+        if not cond and hint:
+            print(f"       {hint}")
+        ok &= bool(cond)
+        return cond
+
+    print(f"orionctl {VERSION}, model: {product_name() or 'unknown'}")
+    loaded = os.path.isdir("/sys/module/acer_predator_dt_rgb")
+    version = ""
+    if loaded:
+        try:
+            version = read("/sys/module/acer_predator_dt_rgb/version")
+        except OSError:
+            pass
+    check(loaded, f"kernel module loaded ({version or 'unknown version'})", "kernel module not loaded",
+          "sudo modprobe acer_predator_dt_rgb   (install with: sudo make install)")
+    dev = device_dir()
+    if check(dev, "driver bound to the AcerGamingFunction WMI device",
+             "no device bound", "see 'sudo dmesg | grep acer-predator' for the reason"):
+        print(f"       zones: {' '.join(zones(dev))}, SMBIOS 172 v{read(os.path.join(dev, 'smbios_version'))}")
+        check(can_write(dev, zones(dev)), "this user can change the lights",
+              "this user cannot write the zone files",
+              f"sudo usermod -aG {GROUP} $USER, then log out and in again")
+    try:
+        out = subprocess.run(["dkms", "status", "acer-predator-dt-rgb"], capture_output=True, text=True).stdout.strip()
+    except OSError:
+        out = ""
+    check("installed" in out, f"DKMS: {out}", "not installed through DKMS (manual insmod?)",
+          "sudo make install   (rebuilds automatically on kernel updates)")
+    try:
+        enabled = subprocess.run(["systemctl", "is-enabled", "orion-unchained.service"],
+                                 capture_output=True, text=True).stdout.strip()
+    except OSError:
+        enabled = ""
+    check(enabled == "enabled", "boot restore service enabled", "boot restore service not enabled",
+          "sudo systemctl enable orion-unchained.service")
+    check(os.path.exists(STATE_FILE), f"saved state: {STATE_FILE}", "no saved state yet",
+          "any 'orionctl set' or 'orionctl style apply' creates it")
+    sys.exit(0 if ok else 1)
+
+
+def main():
+    global QUIET
+    p = argparse.ArgumentParser(prog="orionctl", description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--version", action="version", version=f"orionctl {VERSION}")
+    p.add_argument("-q", "--quiet", action="store_true", help="only print errors")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("status", help="show every zone")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(func=cmd_status)
+    sub.add_parser("zones", help="list zone names").set_defaults(func=cmd_zones)
+    sub.add_parser("modes", help="list effects and what they use").set_defaults(func=cmd_modes)
+
+    s = sub.add_parser("set", help="change zones (default: all)")
+    s.add_argument("zones", nargs="*", metavar="ZONE", help="global, all, front, rear, cpu, radiator, area1...")
+    s.add_argument("-m", "--mode", choices=list(MODES))
+    s.add_argument("-c", "--color", type=color_arg, help="RRGGBB, a colour name, or 'random' (global)")
+    s.add_argument("-b", "--brightness", type=int, choices=range(0, 101), metavar="0-100")
+    s.add_argument("-s", "--speed", type=int, choices=range(0, 10), metavar="0-9")
+    s.add_argument("-t", "--duration", type=int, choices=range(0, 10), metavar="0-9")
+    s.add_argument("-d", "--direction", choices=["left", "right"])
+    s.set_defaults(func=cmd_set)
+
+    s = sub.add_parser("off", help="turn zones off (default: all)")
+    s.add_argument("zones", nargs="*", metavar="ZONE")
+    s.set_defaults(func=cmd_off)
+    sub.add_parser("on", help="bring back the look from before 'off'").set_defaults(func=cmd_on)
+
+    s = sub.add_parser("save", help="save the current look (restored at boot)")
+    s.add_argument("file", nargs="?", default=STATE_FILE)
+    s.set_defaults(func=cmd_save)
+    s = sub.add_parser("restore", help="apply a saved look")
+    s.add_argument("file", nargs="?", default=STATE_FILE)
+    s.add_argument("--wait", type=float, default=0, metavar="SECONDS", help="wait for the driver")
+    s.set_defaults(func=cmd_restore)
+    sub.add_parser("reapply", help="push the current state to the hardware again").set_defaults(func=cmd_reapply)
+
+    st = sub.add_parser("style", help="list, apply and create styles").add_subparsers(dest="style_cmd", required=True)
+    s = st.add_parser("list")
+    s.add_argument("--tag")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(func=cmd_style_list)
+    s = st.add_parser("show")
+    s.add_argument("name")
+    s.set_defaults(func=cmd_style_show)
+    s = st.add_parser("apply")
+    s.add_argument("name", help="style name or path to a .json file")
+    s.set_defaults(func=cmd_style_apply)
+    s = st.add_parser("save", help="save the current look as a style in ~/.config/orion-unchained/styles")
+    s.add_argument("name")
+    s.add_argument("--description")
+    s.add_argument("--author")
+    s.add_argument("--tags", help="comma separated")
+    s.set_defaults(func=cmd_style_save)
+    s = st.add_parser("validate")
+    s.add_argument("files", nargs="+")
+    s.set_defaults(func=cmd_style_validate)
+
+    sub.add_parser("doctor", help="check the installation").set_defaults(func=cmd_doctor)
+
+    args = p.parse_args()
+    QUIET = args.quiet
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "name": "Predator Wave",
+  "author": "Orion Unchained",
+  "description": "PredatorSense's default dynamic effect: a wave in random colours.",
+  "tags": [
+    "acer",
+    "animated"
+  ],
+  "zones": {
+    "global": {
+      "mode": "wave",
+      "color": "random",
+      "speed": 3,
+      "duration": 3
+    }
+  }
+}

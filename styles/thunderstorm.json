@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "name": "Thunderstorm",
+  "author": "Orion Unchained",
+  "description": "Fast white flashes over a blue case.",
+  "tags": [
+    "nature",
+    "animated"
+  ],
+  "zones": {
+    "front": {
+      "mode": "static",
+      "color": "1030ff"
+    },
+    "rear": {
+      "mode": "static",
+      "color": "1030ff"
+    },
+    "cpu": {
+      "mode": "static",
+      "color": "1030ff"
+    },
+    "radiator": {
+      "mode": "twinkling",
+      "color": "ffffff",
+      "speed": 8,
+      "duration": 1
+    }
+  }
+}

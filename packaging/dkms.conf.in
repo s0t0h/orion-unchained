@@ -1,0 +1,6 @@
+PACKAGE_NAME="acer-predator-dt-rgb"
+PACKAGE_VERSION="@VERSION@"
+BUILT_MODULE_NAME[0]="acer_predator_dt_rgb"
+DEST_MODULE_LOCATION[0]="/extra"
+MAKE[0]="make KVER=${kernelver}"
+AUTOINSTALL="yes"
