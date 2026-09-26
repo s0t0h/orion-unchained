@@ -52,12 +52,16 @@ Since styles are plain files, anyone can remix one and send it back. A public ga
 
 ## Animation and reactive lighting
 
-The firmware runs its effects by itself, which costs the computer nothing. Anything beyond them has to be animated from software, by updating zones over and over. Each update is two firmware calls, and every firmware call briefly pauses all CPU cores, so the update rate has to stay low. The plan:
+The firmware runs its effects by itself, which costs the computer nothing. It only takes whole-zone commands, though: an effect, a colour, a brightness and a speed for each zone, with no way to set single LEDs. Every change is two firmware calls, and on a PO7-660 each call pauses all CPU cores for about 1.6 ms. A zone change therefore costs 3.3 ms, and software can afford a few of them per second.
 
-- Measure the cost of one firmware call precisely and find a rate that stays invisible.
-- Style format 2 with keyframes: colours that travel from the front to the rear, fades between whole styles, timed sequences.
-- Combine both worlds: firmware effects for motion, slower software changes on top.
-- Reactive lighting driven by CPU and GPU temperatures, load, audio, notifications, and game or chat events.
+Hand-made effects will combine the firmware's effects instead of drawing their own:
+
+- Relay across zones: start a firmware effect zone after zone with precise timing, for example one snake that travels round the whole case.
+- Layering: the firmware moves the single LEDs, and software slowly changes colours or swaps effects on top, like a snake that turns from blue to red as the CPU heats up.
+- Reactive lighting: CPU and GPU temperatures, load, notifications, game or chat events, time of day, lights off when the screen locks. Anything that changes about once a second or slower.
+- Scenes and timed sequences, such as looks that change through the day and fades between whole styles. Style format 2 with keyframes will describe them.
+
+Custom per-LED patterns, fast smooth fades and lighting that follows music closely are out of reach through this interface.
 
 ## Integrations
 

@@ -4,7 +4,7 @@ This document describes how the case lighting of Predator Orion desktops is cont
 
 ## Overview
 
-On the PO7-660 the lighting has no interface of its own on USB, HID or SMBus. The board firmware owns it and exposes it through the WMI class `AcerGamingFunction`. PredatorSense uses four of that class's methods for lighting:
+On the PO7-660 the lighting controller sits on the chipset's SMBus at address `0x29` and has no USB or HID interface. The board firmware owns it and exposes it through the WMI class `AcerGamingFunction`. PredatorSense uses four of that class's methods for lighting:
 
 | ID | Method | Input | Output | Purpose |
 |---|---|---|---|---|
@@ -51,7 +51,32 @@ The same WMI device (`_UID` "APGe") also carries the classes `BIOSSetting`, `Uti
 2. calls `PHSR`, which writes `0x91` to I/O port `0xB2` and so raises a software SMI,
 3. returns the first bytes of `WBUF` as the result: 8 bytes for methods 1, 3, 5, 6 and 8, 4 bytes for methods 2, 4, 7 and 12.
 
-The lighting logic therefore runs in System Management Mode, inside the BIOS. The BIOS 1.02 changelog mentions reading the firmware version of an "MCU", presumably the controller that drives the LEDs. Methods 9 to 11 (overclocking) take a separate path in `WMBH`.
+The lighting logic therefore runs in System Management Mode, inside the BIOS. Methods 9 to 11 (overclocking) take a separate path in `WMBH`.
+
+## Inside the firmware
+
+The SMM driver that handles these requests (`OEMWMISmi` in BIOS 1.08) turns each lighting method into one SMBus block transfer to the controller at 7-bit address `0x29` on the chipset's SMBus (`i2c-0`, driver `i2c_i801`, on Linux):
+
+| Method | SMBus transfer |
+|---|---|
+| 5 | block write, command `0x05`, 8 bytes: area mask high, area mask low, enable, mode, feature bits, speed, duration, colour type |
+| 7 | block write, command `0x07`, 7 bytes: area mask high, area mask low, red, green, blue, brightness, `0x03` |
+| 6 | block read, command `(n << 4) \| 5`, 6 bytes back; n is 1 to 5 for areas 1 to 5, 6 for global and 7 for memory |
+| 8 | block read, command `(n << 4) \| 7`, 6 bytes back, the first four being red, green, blue and brightness |
+
+The firmware fills in the feature bits and the direction itself, and it always sends `0x03` as the last colour byte, so the `0x02` PredatorSense sends for colourless effects never reaches the controller. BIOS Setup reads the controller's firmware version with a block read of command `0xF0` and shows it as "LED Firmware Version" on its Information page. When the SMBus is busy, for example because a Linux driver is using it at that moment, the firmware drops the change and still reports success.
+
+The BIOS update contains no firmware for the controller and no code that could update it, and it never sends the controller per-LED colours. The chip is not named anywhere. The way Setup writes its registers resembles ENE's SMBus RGB controllers, which is unconfirmed.
+
+The transfers come from a disassembly of the BIOS 1.08 update. The reads were then checked on the bus of a PO7-660 with `i2cget -y 0 0x29 <command> s`, and they return what methods 6 and 8 return, minus the status byte:
+
+| Command | Reply |
+|---|---|
+| `(n << 4) \| 5` | enable, mode, speed, duration, `0x00`, `0xFF` |
+| `(n << 4) \| 7` | red, green, blue, brightness, `0xFF`, `0xFF` |
+| `0xF0` | `0x35 0x48 0x00 0x00 0x00 0x00` on that machine |
+
+The global entry keeps its own values: after areas were changed one by one, command `0x65` still returned the last global effect. The writes have not been tried on the bus.
 
 ## SMBIOS type 172
 

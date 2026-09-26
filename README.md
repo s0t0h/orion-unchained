@@ -84,7 +84,7 @@ All of these are handled by the same PredatorSense lighting code on Windows, so 
 
 ## How it works
 
-The Orion has no USB or SMBus lighting controller that Linux could talk to directly. The lights sit behind the board firmware, which PredatorSense reaches through a WMI class called `AcerGamingFunction`. Two of its methods set an effect and a colour for one area of the case, and two more read them back. The ACPI code behind them hands each request to the firmware through a software SMI.
+The lights are driven by a controller on the motherboard's SMBus, and the board firmware owns it. PredatorSense reaches it through a WMI class called `AcerGamingFunction`. Two of its methods set an effect and a colour for one area of the case, and two more read them back. The ACPI code behind them hands each request to the firmware through a software SMI, and the firmware passes it on to the controller. Orion Unchained uses the same WMI methods and leaves the SMBus alone.
 
 The driver calls the same four methods through the kernel's WMI bus, with payloads copied from a disassembly of Acer's lighting DLL. It asks the firmware which areas exist, hides the rest, and validates every value before anything is sent. [docs/PROTOCOL.md](docs/PROTOCOL.md) documents the protocol, and [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md) explains how it was worked out and how to check the work.
 

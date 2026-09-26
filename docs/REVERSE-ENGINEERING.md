@@ -6,7 +6,7 @@ The work was done on a Predator PO7-660 (BIOS 1.08) running Nobara 44 with Linux
 
 ## 1. Looking for a lighting controller
 
-Most RGB hardware shows up as a USB HID device or sits on the SMBus. On this machine `lsusb` and `/sys/class/hidraw` show only the keyboard, a wireless receiver, Bluetooth and a mouse. OpenRGB had already run a full detection pass here, including every SMBus and GPU I2C probe, and found nothing belonging to the case. The RAM is non-RGB Crucial memory, so there was no reason to touch the SMBus at all.
+Most RGB hardware shows up as a USB HID device or sits on the SMBus. On this machine `lsusb` and `/sys/class/hidraw` show only the keyboard, a wireless receiver, Bluetooth and a mouse. OpenRGB had already run a full detection pass here, including every SMBus and GPU I2C probe, and recognised nothing belonging to the case. The RAM is non-RGB Crucial memory, so there was no reason to probe the SMBus further. Section 7 shows that the controller does sit on the SMBus, at an address OpenRGB does not look at.
 
 That leaves the firmware. `ls /sys/bus/wmi/devices` lists the WMI blocks the BIOS exposes, and one of them, `7A4DDFE7-5B5D-40B4-8595-4408E0CC7F56`, is the "Acer Gaming Function" GUID that Linux drivers for Predator laptops already use for keyboard lighting. On this desktop no driver claimed it.
 
@@ -63,7 +63,11 @@ With the protocol understood, the first call made from Linux was the read-only q
 
 The first write was the smallest possible change that Windows also makes: the global area, static, red. The firmware answered with status 0, reading the areas back returned the new colour everywhere, and the case turned red. After that, one colour per area confirmed that each area can be set on its own. Which area is which part of the case comes from PredatorSense's own layout tables.
 
-## 7. What was deliberately not done
+## 7. Looking inside the BIOS
+
+After the driver worked, the official BIOS 1.08 update from Acer's support site was unpacked offline to see what the SMI does with a request. The ROM is an AMI BIOS Guard capsule; UEFIExtract splits it into modules. The SMM driver `OEMWMISmi` holds a table that maps the mailbox commands to handlers. Disassembled with Ghidra and capstone, the four lighting handlers (`0x45` to `0x48`) each perform one SMBus block transfer to address `0x29`. [PROTOCOL.md](PROTOCOL.md) lists the transfers. Nothing was installed and the bus was not touched.
+
+## 8. What was deliberately not done
 
 - No probing or writing on the SMBus or the GPU's I2C buses.
 - No direct access to the embedded controller or to I/O ports.
@@ -72,7 +76,7 @@ The first write was the smallest possible change that Windows also makes: the gl
 
 ## Tools
 
-bmfdec (BMOF decoding), acpica-tools (`acpidump`, `iasl`), Ghidra, GNU binutils (`objdump`), Python, and the kernel's WMI and debugfs interfaces. The driver keeps a raw read-back of every area in `/sys/kernel/debug/acer_predator_dt_rgb/state` for anyone continuing this work.
+bmfdec (BMOF decoding), acpica-tools (`acpidump`, `iasl`), UEFIExtract, Ghidra, capstone, GNU binutils (`objdump`), Python, and the kernel's WMI and debugfs interfaces. The driver keeps a raw read-back of every area in `/sys/kernel/debug/acer_predator_dt_rgb/state` for anyone continuing this work.
 
 ## A note on OpenRGB
 
