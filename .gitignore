@@ -19,3 +19,6 @@ modules.order
 # Python
 __pycache__/
 *.pyc
+
+# Internal notes for whoever continues the work
+/HANDOFF.md

@@ -1,6 +1,6 @@
 # Using orionctl
 
-`orionctl` is the command-line front end of Orion Unchained. `orionctl --help` and `orionctl COMMAND --help` list every option.
+`orionctl` is the command-line front end of Orion Unchained. `orionctl --help` and `orionctl COMMAND --help` list every option. The graphical app is described in [APP.md](APP.md); both use the same driver, styles and saved state.
 
 ## Zones
 

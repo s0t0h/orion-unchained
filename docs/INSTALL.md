@@ -20,6 +20,25 @@ sudo pacman -S --needed linux-headers dkms make gcc python
 sudo zypper install kernel-default-devel dkms make gcc python3
 ```
 
+The app also needs PySide6 6.8 or newer, the official Python bindings for Qt. The driver and orionctl work without it.
+
+```bash
+# Fedora, Nobara
+sudo dnf install python3-pyside6
+
+# Arch, EndeavourOS, CachyOS
+sudo pacman -S --needed pyside6
+
+# openSUSE Tumbleweed
+sudo zypper install python3-pyside6
+
+# Debian 13, Ubuntu 26.04 and newer
+sudo apt install python3-pyside6.qtquick python3-pyside6.qtquickcontrols2 python3-pyside6.qtwidgets \
+    qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+    qml6-module-qtquick-shapes qml6-module-qtquick-effects qml6-module-qtquick-dialogs \
+    qml6-module-qtquick-window qml6-module-qtcore qt6-svg-plugins
+```
+
 ## Install
 
 ```bash
@@ -30,14 +49,14 @@ sudo make install
 
 This does the following:
 
-1. Copies the driver source to `/usr/src/acer-predator-dt-rgb-0.1.0` and builds and installs it with DKMS. DKMS rebuilds it by itself whenever a new kernel is installed.
-2. Installs `orionctl` to `/usr/local/bin` and the style library to `/usr/local/share/orion-unchained/styles`.
+1. Copies the driver source to `/usr/src/acer-predator-dt-rgb-VERSION` and builds and installs it with DKMS, after removing any older version. DKMS rebuilds it by itself whenever a new kernel is installed.
+2. Installs `orionctl` and the app, `orion-unchained`, to `/usr/local/bin`, adds the app to your menu, and puts the style library in `/usr/local/share/orion-unchained/styles`.
 3. Creates the `orion-rgb` group and adds the account that ran `sudo`. A udev rule gives that group write access to the lighting controls, and nothing else.
 4. Creates `/var/lib/orion-unchained`, where your current look is saved.
 5. Enables `orion-unchained.service`, which restores your look at boot, and `orion-unchained-resume.service`, which re-applies it after suspend or hibernation.
 6. Loads the driver.
 
-Log out and back in once so your account picks up the new group. Until then orionctl falls back to sudo. Then check the result:
+Your account only picks up the new group at the next login. Until then orionctl and the app run themselves through `sg orion-rgb`, which works without logging out. Then check the result:
 
 ```bash
 orionctl doctor
@@ -75,8 +94,13 @@ echo "options acer_predator_dt_rgb force=1" | sudo tee /etc/modprobe.d/orion-unc
 ```bash
 make
 sudo insmod driver/acer_predator_dt_rgb.ko
-cli/orionctl status
+bin/orionctl status
+bin/orion-unchained
 ```
+
+`bin/orion-unchained --demo` runs the app with a simulated PO7-660, without the driver.
+
+`make shortcut`, run without sudo, adds Orion Unchained to your app menu and puts an icon on your desktop. Both start the app from this checkout. `make unshortcut` removes them; run it before `sudo make install` so the checkout entry does not hide the installed one.
 
 `sudo rmmod acer_predator_dt_rgb` unloads it again. Unloading leaves the lights as they are.
 
@@ -93,7 +117,7 @@ sudo make install
 sudo make uninstall
 ```
 
-This removes the driver, orionctl, the styles, the udev rule and the services. It keeps `/var/lib/orion-unchained` and the `orion-rgb` group, in case you reinstall; delete them by hand if you want them gone (`sudo rm -r /var/lib/orion-unchained`, `sudo groupdel orion-rgb`).
+This removes the driver, orionctl, the app, the styles, the udev rule and the services. It keeps `/var/lib/orion-unchained` and the `orion-rgb` group, in case you reinstall; delete them by hand if you want them gone (`sudo rm -r /var/lib/orion-unchained`, `sudo groupdel orion-rgb`).
 
 ## Packaging
 

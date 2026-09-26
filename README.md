@@ -2,13 +2,14 @@
 
 Open-source lighting control for Acer Predator Orion desktops on Linux.
 
-Acer sells the Predator Orion with a case full of RGB fans and a Windows app to drive them, and gives Linux users nothing. Orion Unchained fills that gap with a kernel driver, a command-line tool and a library of lighting styles. It was built from scratch by taking the Windows software apart, and every byte it sends to the hardware is documented here, so nobody has to do that work again.
+Acer sells the Predator Orion with a case full of RGB fans and a Windows app to drive them, and gives Linux users nothing. Orion Unchained fills that gap with a kernel driver, a desktop app, a command-line tool and a library of lighting styles. It was built from scratch by taking the Windows software apart, and every byte it sends to the hardware is documented here, so nobody has to do that work again.
 
 It is tested on a Predator Orion 7000 (PO7-660) running Linux 7.2, and the driver builds on kernels from 6.8 up.
 
 ## What you get
 
 - A kernel driver, `acer_predator_dt_rgb`, that sends the lighting firmware the same requests PredatorSense sends on Windows, byte for byte.
+- The Orion Unchained app, which draws the case with each zone lit the way the hardware shows it and puts every setting and the whole style library one click away.
 - `orionctl`, a command-line tool for every zone and every hardware effect: static, breathing, heartbeat, twinkling, rainbow, wave, risen, stack, extend, meteorite, magic and snake, each with colour, brightness, speed, duration and direction where the effect uses them.
 - 49 ready-made styles, from Acer's own factory looks to distro themes, synthwave and pride flags.
 - Styles are small JSON files, so you can write your own and share them like any other file.
@@ -24,9 +25,15 @@ sudo make install
 orionctl style apply synthwave
 ```
 
-`make install` builds the driver through DKMS, so it is rebuilt automatically when your kernel updates. Log out and back in once afterwards so your account joins the `orion-rgb` group; until then orionctl asks for your sudo password. [docs/INSTALL.md](docs/INSTALL.md) has the details for each distribution, Secure Boot and uninstalling.
+Then open Orion Unchained from your app menu, or run `orion-unchained`. The app needs PySide6, which most distributions package; see below.
 
-## Using it
+`make install` builds the driver through DKMS, so it is rebuilt automatically when your kernel updates. It also adds your account to the `orion-rgb` group, which lets you change the lights without sudo. [docs/INSTALL.md](docs/INSTALL.md) has the details for each distribution, PySide6, Secure Boot and uninstalling.
+
+## The app
+
+The app shows the case unfolded like a box, with each fan ring and the CPU cooler lit and animated the way the hardware is set. Click a part to change its effect, colour, brightness, speed, duration or direction, and the lights follow as you drag. The Styles page previews the whole library and applies a style with one click. Anything you build can be saved as a style, and each style's menu can export it or send it to the project through GitHub's style form. `orion-unchained --demo` runs it without the hardware. [docs/APP.md](docs/APP.md) covers the rest.
+
+## Using orionctl
 
 ```bash
 orionctl status                                     # what every zone is doing
@@ -87,7 +94,7 @@ The same firmware interface also handles fan control, CPU overclocking and syste
 
 ## Roadmap
 
-The command line is the foundation. Next comes a graphical app built for these machines, meant to beat both PredatorSense and OpenRGB: a live view of the case, every parameter under your fingers, a style editor, and a way to share styles with everyone else. After that: a much bigger style library, software animations, and lighting that reacts to what the computer is doing. See [docs/ROADMAP.md](docs/ROADMAP.md).
+The driver, orionctl and the app together cover everything the lighting firmware can do. Next on the list are an online style gallery in the app, switching styles on a schedule or when a game starts, panel widgets for KDE Plasma and GNOME, and a much bigger style library. Further out come software animations and lighting that reacts to what the computer is doing. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Why this exists
 

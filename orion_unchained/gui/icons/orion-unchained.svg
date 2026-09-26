@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<!-- Orion Unchained: a lit fan ring broken open, with the three stars of Orion's belt. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b212c"/>
+      <stop offset="1" stop-color="#0a0c10"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0.1" y1="0.15" x2="0.9" y2="0.85">
+      <stop offset="0" stop-color="#34d6e6"/>
+      <stop offset="0.5" stop-color="#9d6bff"/>
+      <stop offset="1" stop-color="#ff4fa3"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.6" stop-color="#8f6bff" stop-opacity="0"/>
+      <stop offset="0.76" stop-color="#8f6bff" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#8f6bff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="star" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#bfefff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#plate)"/>
+  <rect x="8.5" y="8.5" width="239" height="239" rx="55.5" fill="none" stroke="#ffffff" stroke-opacity="0.09"/>
+  <circle cx="128" cy="128" r="112" fill="url(#halo)"/>
+  <path d="M 203.18 100.64 A 80 80 0 1 1 168 58.72" fill="none" stroke="url(#ring)" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="98.9" cy="152.4" r="17" fill="url(#star)"/>
+  <circle cx="128" cy="128" r="20" fill="url(#star)"/>
+  <circle cx="157.1" cy="103.6" r="17" fill="url(#star)"/>
+  <circle cx="98.9" cy="152.4" r="8" fill="#ffffff"/>
+  <circle cx="128" cy="128" r="9.5" fill="#ffffff"/>
+  <circle cx="157.1" cy="103.6" r="8" fill="#ffffff"/>
+</svg>

@@ -1,6 +1,6 @@
 # Styles
 
-A style is a JSON file that describes the lighting of the whole case. Styles are how looks get shared: they are small, readable, diff well in git, and the future GUI will read and write the same format.
+A style is a JSON file that describes the lighting of the whole case. Styles are how looks get shared: they are small, readable, diff well in git, and the app reads and writes the same format.
 
 ## Format 1
 

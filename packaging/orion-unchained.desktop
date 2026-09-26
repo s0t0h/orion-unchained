@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Orion Unchained
+GenericName=Case lighting
+Comment=Control the lighting of Acer Predator Orion desktops
+Exec=orion-unchained
+Icon=orion-unchained
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=RGB;LED;lighting;fans;Predator;Orion;Acer;
+StartupNotify=true
+StartupWMClass=orion-unchained

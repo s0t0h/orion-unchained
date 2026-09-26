@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""Orion Unchained app launcher: finds the orion_unchained package in a checkout or an install."""
+import os
+import sys
+
+here = os.path.dirname(os.path.realpath(__file__))
+for base in (os.path.join(here, ".."), "/usr/local/lib/orion-unchained", "/usr/lib/orion-unchained"):
+    if os.path.isdir(os.path.join(base, "orion_unchained")):
+        sys.path.insert(0, os.path.abspath(base))
+        break
+
+from orion_unchained.core import reexec_with_group  # noqa: E402
+
+# A fresh orion-rgb membership only reaches new logins; sg bridges the gap.
+reexec_with_group([os.path.realpath(__file__), *sys.argv[1:]])
+
+from orion_unchained.gui.app import main  # noqa: E402
+
+main()

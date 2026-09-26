@@ -12,9 +12,9 @@ Make a look you like, save it with `orionctl style save`, and send the file as a
 
 ## Code
 
-- `make check` must pass. It validates every style, compiles orionctl and checks the shell scripts; CI also builds the driver.
+- `make check` must pass. It compiles the Python code, validates every style, checks the shell scripts and, when PySide6 is installed, loads every page of the app; CI also builds the driver.
 - The driver follows the kernel coding style. Run `scripts/checkpatch.pl --no-tree -f driver/acer_predator_dt_rgb.c` from a kernel source tree if you have one.
-- orionctl uses only the Python standard library, so it runs on any distribution without extra packages. Please keep it that way.
+- orionctl and `orion_unchained/core.py` use only the Python standard library, so the command line runs on any distribution without extra packages. Please keep it that way; PySide6 belongs in `orion_unchained/gui/` only.
 - Keep the driver buildable on Linux 6.8 and newer; `LINUX_VERSION_CODE` checks handle API differences.
 
 ## Firmware calls

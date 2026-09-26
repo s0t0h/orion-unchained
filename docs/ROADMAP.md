@@ -10,6 +10,11 @@ The goal is the best way to control the lights of a Predator Orion on any operat
 - DKMS, udev, systemd and group setup: the driver survives kernel updates, the lighting survives reboots and suspend, and no sudo is needed day to day.
 - Documentation of the protocol and of how it was found.
 
+## Done for 0.2.0
+
+- The Orion Unchained app. It draws the PO7-660 with each zone lit and animated the way the hardware is set, and has every effect and setting for each zone and for the whole case. The style library comes with live previews, and styles can be saved, imported, exported and shared through GitHub. Identify buttons show which zone is which, the checks from `orionctl doctor` are built in, and a demo mode runs without the hardware.
+- orionctl and the app share one Python package, `orion_unchained`.
+
 ## Next
 
 - Confirm the zone names on the PO7-660 by eye, and get model reports for the PO3, PO5, PO7-640/650/655 and POX so they can be enabled by default.
@@ -20,15 +25,14 @@ The goal is the best way to control the lights of a Predator Orion on any operat
 
 ## The app
 
-The big one is a graphical app made for these machines, better than both PredatorSense and OpenRGB, and state of the art for what it does. What it should do:
+The app exists now, and the aim has not changed: better than both PredatorSense and OpenRGB, and state of the art for what it does. It already shows the case and every setting, and it works offline with no account, telemetry or ads. Still to come:
 
-- Show a live, accurate picture of the case, with every zone in place and lit the way the real one is.
-- Give direct access to every parameter the hardware has (effect, colour, brightness, speed, duration, direction) on every zone and on the whole case, with nothing hidden behind presets.
-- Let anyone make their own styles in an editor, preview them on the picture before applying, and save them as ordinary style files.
-- Make sharing part of the app: a style gallery to browse, search and install from with one click, and a way to publish your own.
-- Switch styles by schedule or trigger: time of day, idle, screen lock, a game starting.
-- Sit in the KDE Plasma and GNOME panels for quick changes.
-- Run fast and look native, work offline, and have no account, no telemetry and no ads.
+- Drawings for the other Orion models, which show a plain ring per zone for now.
+- Fine-tune the effect previews. They were fitted to a video at speed 5 and duration 0 and come close, but still differ a little from the hardware. How speed and duration scale is a guess until each effect is filmed at a few settings.
+- A preview mode that tries a style on the drawing before anything is sent to the hardware.
+- A style gallery to browse, search and install from with one click, and a way to publish your own from the app.
+- Switching styles by schedule or trigger: time of day, idle, screen lock, a game starting.
+- Panel widgets for KDE Plasma and GNOME for quick changes.
 
 Everything the app can do, `orionctl` should be able to do as well. To get there, a small system service with a D-Bus API will become the shared backend for the app, the CLI and other tools. It will also handle permissions through polkit and run animations.
 
