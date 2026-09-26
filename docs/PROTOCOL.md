@@ -173,6 +173,8 @@ The direction is not reported. PredatorSense calls `GetGamingLedBehavior(0x40)` 
 
 The speed, duration and direction columns follow PredatorSense's interface, which disables controls an effect does not use. The colour column follows Acer's lighting DLL. The two disagree on snake: the interface shows no colour picker for it, while the DLL declares a colour for snake and sends it with byte 6 of method 7 set to `0x03`.
 
+On the PO7-660 with BIOS 1.08 the firmware accepts off (`0xFE` with enable 0), but the LEDs stay lit. Brightness 0 in method 7 does turn them off, so the driver sends brightness 0 with off.
+
 PredatorSense's individual-area menus on PO7 models leave out wave and snake, and its memory menu offers only static, breathing, risen, twinkling, rainbow and heartbeat. The DLL offers a random colour only on the global area, for breathing, heartbeat, twinkling, wave and snake.
 
 ## How PredatorSense fills the fields

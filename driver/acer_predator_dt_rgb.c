@@ -252,7 +252,11 @@ static int predator_apply(struct predator_rgb *priv, enum predator_area area,
 	rgb[2] = zone->red;
 	rgb[3] = zone->green;
 	rgb[4] = zone->blue;
-	rgb[5] = zone->brightness;
+	/*
+	 * The PO7-660 firmware ignores mode 0xFE and the enable byte and keeps the
+	 * LEDs lit, so off also sends brightness 0. The cached brightness stays.
+	 */
+	rgb[5] = mode->id == MODE_OFF ? 0 : zone->brightness;
 	rgb[6] = predator_rgb_flags(mode->id);
 
 	ret = predator_call(priv, METHOD_SET_RGB_SETTING, rgb, sizeof(rgb), reply);
