@@ -76,7 +76,9 @@ The transfers come from a disassembly of the BIOS 1.08 update. The reads were th
 | `(n << 4) \| 7` | red, green, blue, brightness, `0xFF`, `0xFF` |
 | `0xF0` | `0x35 0x48 0x00 0x00 0x00 0x00` on that machine |
 
-The global entry keeps its own values: after areas were changed one by one, command `0x65` still returned the last global effect. The writes have not been tried on the bus.
+The global entry keeps its own values: after areas were changed one by one, command `0x65` still returned the last global effect.
+
+A colour write sent straight to the controller works as well: a block write of command `0x07` with `00 02 00 00 ff 64 03` turned area 1 blue at full brightness, and command `0x17` read back `00 00 ff 64`. The effect command works the same way: `0x05` with `00 02 01 01 07 05 00 00` (area 1, enabled, breathing, feature byte 7, speed 5, duration 0, fixed colour), followed by that colour write, made area 1 breathe in blue, and command `0x15` read back `01 01 05 00 00 ff`. Sent this way, a change needs no SMI at all.
 
 ## SMBIOS type 172
 
