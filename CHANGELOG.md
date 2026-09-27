@@ -7,6 +7,7 @@
 - A saved look whose areas still ran a global effect in random colours could not be restored: the saved file gave those areas a random colour, which only the global zone accepts. Such areas are now saved through the global zone.
 - Turning the lights off left them lit on the PO7-660, because its firmware ignores the off mode. The driver, orionctl and the app now send brightness 0 with off. A zone switched from off to another effect gets full brightness back unless the change sets a brightness.
 - The app's effect previews now follow a video of the real effects instead of guesses based on their names. Most had looked nothing like the hardware: twinkling blinks the whole case, rainbow and risen are slow, and wave is one pulse through the case. The effect descriptions changed to match.
+- On the PO7-660 the driver talks to the lighting controller directly over the SMBus, with the transfers the firmware would send. Light changes no longer pause every CPU core, and the firmware can no longer drop a change while Linux uses the bus. The driver checks the controller at load and falls back to the WMI methods if anything differs; `transport=wmi` keeps it off the bus. The new sysfs file `transport` shows the path in use, and `orionctl status` and `doctor` report it.
 - `sudo make install` removes older DKMS versions of the driver first, and installs the app with a menu entry and an icon.
 
 ## 0.1.0 (2026-09-26)

@@ -116,12 +116,14 @@ def cmd_status(args):
     aliases = core.zone_aliases()
     states = core.read_all(dev)
     smbios = core.read(os.path.join(dev, "smbios_version"))
+    transport = core.transport(dev)
     if args.json:
-        print(json.dumps({"model": core.product_name(), "smbios_version": smbios,
+        print(json.dumps({"model": core.product_name(), "smbios_version": smbios, "transport": transport or None,
                           "zones": {z: dict(s, aliases=core.names_for(z, aliases)) for z, s in states.items()}},
                          indent=2))
         return
-    print(f"{core.product_name() or 'unknown model'}, SMBIOS 172 v{smbios}")
+    print(f"{core.product_name() or 'unknown model'}, SMBIOS 172 v{smbios}"
+          + (f", {transport} transport" if transport else ""))
     for zone, s in states.items():
         mode = core.MODES.get(s["mode"], {})
         extra = []
@@ -299,8 +301,10 @@ def doctor_checks():
                    "sudo modprobe acer_predator_dt_rgb   (install with: sudo make install)"))
     dev = core.device_dir()
     if dev:
+        transport = core.transport(dev)
         checks.append((True, f"driver bound: zones {' '.join(core.zones(dev))}, SMBIOS 172 v"
-                             f"{core.read(os.path.join(dev, 'smbios_version'))}", ""))
+                             f"{core.read(os.path.join(dev, 'smbios_version'))}"
+                             + (f", {transport} transport" if transport else ""), ""))
         writable = core.can_write(dev, core.zones(dev))
         if not writable and core.in_group_file():
             hint = "you are in the group already; log out and back in once"

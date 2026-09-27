@@ -114,6 +114,14 @@ def driver_version():
         return ""
 
 
+def transport(dev):
+    """How the driver reaches the lighting controller: "smbus", "wmi", or "" for drivers before 0.2.0."""
+    try:
+        return read(os.path.join(dev, "transport"))
+    except OSError:
+        return ""
+
+
 def zone_aliases():
     name = product_name()
     for key, table in MODELS:

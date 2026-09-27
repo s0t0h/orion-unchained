@@ -84,7 +84,7 @@ All of these are handled by the same PredatorSense lighting code on Windows, so 
 
 ## How it works
 
-The lights are driven by a controller on the motherboard's SMBus, and the board firmware owns it. PredatorSense reaches it through a WMI class called `AcerGamingFunction`. Two of its methods set an effect and a colour for one area of the case, and two more read them back. The ACPI code behind them hands each request to the firmware through a software SMI, and the firmware passes it on to the controller. Orion Unchained uses the same WMI methods and leaves the SMBus alone.
+The lights are driven by a controller on the motherboard's SMBus, and the board firmware owns it. PredatorSense reaches it through a WMI class called `AcerGamingFunction`. Two of its methods set an effect and a colour for one area of the case, and two more read them back. The ACPI code behind them hands each request to the firmware through a software SMI, and the firmware passes it on to the controller. Every such call pauses all CPU cores for a moment, so on the PO7-660 the driver skips it: after checking the controller at load, it sends it the same SMBus transfers the firmware would. Other models, and the module option `transport=wmi`, use the WMI methods. [docs/SAFETY.md](docs/SAFETY.md) lists exactly what the driver sends.
 
 The driver calls the same four methods through the kernel's WMI bus, with payloads copied from a disassembly of Acer's lighting DLL. It asks the firmware which areas exist, hides the rest, and validates every value before anything is sent. [docs/PROTOCOL.md](docs/PROTOCOL.md) documents the protocol, and [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md) explains how it was worked out and how to check the work.
 
